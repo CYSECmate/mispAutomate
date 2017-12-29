@@ -3,12 +3,12 @@
 
 from pymisp import PyMISP
 from private.mispKeys import mispUrl, mispKey, mispVerifycert
+from lib.logger import *
 import datetime, time
 
 
 ''' Variables '''
 finalJsonArray = []
-
 
 ''' Function which initialise the connection to MISP '''
 def init(mispUrl, mispKey, mispVerifycert):
@@ -81,22 +81,26 @@ def getJsonArray(mispObject, response, dateRange, tag):
   for attribute_item in response['response']['Attribute']:
     if is_AttributeTimestampWithinDeltaOfDays(attribute_item['timestamp'], dateRange):
       eventIdSet.add(attribute_item['event_id'])
-      attributes.append(getAttributeDetails(attribute_item))
+      attributeDetails = getAttributeDetails(attribute_item)
+      attributes.append(attributeDetails)
 
   for event_item in eventIdSet:
     events.append(getEventDetailsFromMisp(mispObject, event_item))
 
+  count = 0
   for event in events:
     for attribute in attributes:
       if event['event_id'] == attribute['event_id']:
         if tag:
           if tag in event['event_tag']:
+            count += 1
+            logger.debug("Attribute found, Event ID: {}, Value: {}".format(attribute['event_id'], attribute['value']))
             finalJsonArray.append({**event, **attribute})
           else:
             pass
         else:
           finalJsonArray.append({**event, **attribute})
-  return finalJsonArray
+  return finalJsonArray, count
 
 
 
