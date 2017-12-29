@@ -6,7 +6,6 @@ from modules.mispExport import *
 import argparse
 import os
 import json
-import datetime, time
 
 
 ''' Variables '''
@@ -17,7 +16,10 @@ finalJsonArray = []
 class userChoices:
   def __init__(self, category, dateRange, tag):
     self.category = category
-    self.tag = tag
+    if tag:
+      self.tag = tag
+    else:
+      self.tag = None
     self.dateRange = dateRange
     if self.category == "domain":
       self.categories = ['domain']
@@ -25,8 +27,6 @@ class userChoices:
       self.categories = ['email-src', 'email-dst']
     if self.category == "ip":
       self.categories = ['ip-src', 'ip-dst']
-
-
 
 
 
@@ -43,52 +43,50 @@ if __name__ == '__main__':
   u = userChoices(args.category, args.daterange, args.tag)
   
 
-  content = getSplunkContent("misp_domain_intel", splunkUser, splunkPass)
-  print(content)
-  
-
-  '''
   if u.category == 'domain':
     for category in u.categories:
       kwargs = {'type_attribute': category}
-      response = misp.search(controller='attributes', **kwargs)
+      response = searchEvent(misp, kwargs)
       if response:
-        getJsonArray(response)
+        finalJsonArray = getJsonArray(misp, response, u.dateRange, u.tag)
     for item in finalJsonArray:
       for key, value in item.copy().items():
         if key == "value":
           item['domain'] = item['value']
           del(item['value'])
+    response = deleteSplunkContent("misp_domain_intel", splunkUser, splunkPass)
+    response = pushSplunkContent("misp_domain_intel", splunkUser, splunkPass, finalJsonArray)
 
   if u.category == 'ip':
     for category in u.categories:
       kwargs = {'type_attribute': category}
-      response = misp.search(controller='attributes', **kwargs)
+      response = searchEvent(misp, kwargs)
       if response:
-        getJsonArray(response, u.dateRange)
+        finalJsonArray = getJsonArray(misp, response, u.dateRange, u.tag)
     for item in finalJsonArray:
       for key, value in item.copy().items():
         if key == "value":
           item['ip'] = item['value']
           del(item['value'])
-
+    response = deleteSplunkContent("misp_ip_intel", splunkUser, splunkPass)
+    response = pushSplunkContent("misp_ip_intel", splunkUser, splunkPass, finalJsonArray)
   if u.category == 'email':
     for category in u.categories:
       kwargs = {'type_attribute': category}
-      response = misp.search(controller='attributes', **kwargs)
+      response = searchEvent(misp, kwargs)
       if response['response']:
-        getJsonArray(response, u.dateRange)
+        finalJsonArray = getJsonArray(misp, response, u.dateRange, u.tag)
     for item in finalJsonArray:
       for key, value in item.copy().items():
         if key == "value":
           item['src_user'] = item['value']
           item['subject'] = ""
           del(item['value'])
-
+    response = deleteSplunkContent("misp_email_intel", splunkUser, splunkPass)
+    response = pushSplunkContent("misp_email_intel", splunkUser, splunkPass, finalJsonArray)
 
 
   print(finalJsonArray)
-  '''
       
 
 

@@ -3,6 +3,12 @@
 
 from pymisp import PyMISP
 from private.mispKeys import mispUrl, mispKey, mispVerifycert
+import datetime, time
+
+
+''' Variables '''
+finalJsonArray = []
+
 
 ''' Function which initialise the connection to MISP '''
 def init(mispUrl, mispKey, mispVerifycert):
@@ -26,9 +32,15 @@ def is_AttributeTimestampWithinDeltaOfDays(timestamp, numberOfDays):
     return False
 
 
+''' Search Misp event of specific attribute type '''
+def searchEvent(mispObject, kwargs):
+  response = mispObject.search(controller='attributes', **kwargs)
+  return(response)
+
+
 ''' Get event details from misp and return a dict '''
-def getEventDetailsFromMisp(eventId):
-    event = misp.get_event(eventId)
+def getEventDetailsFromMisp(mispObject, eventId):
+    event = mispObject.get_event(eventId)
     dictEvent = {}
     dictEvent['event_id'] = eventId
     dictEvent['published'] = event['Event']['published']
@@ -61,27 +73,33 @@ def getAttributeDetails(attribute):
 
 
 ''' Function which returns attributes as JSON Array '''
-def getJsonArray(response):
+def getJsonArray(mispObject, response, dateRange, tag):
   eventIdSet = set()   # Contains dict of each event id
   events = []          # Contains Json array of each event
   attributes = []      # Contains Json array of each attribute
 
   for attribute_item in response['response']['Attribute']:
-    if is_AttributeTimestampWithinDeltaOfDays(attribute_item['timestamp'], u.dateRange):
+    if is_AttributeTimestampWithinDeltaOfDays(attribute_item['timestamp'], dateRange):
       eventIdSet.add(attribute_item['event_id'])
       attributes.append(getAttributeDetails(attribute_item))
 
   for event_item in eventIdSet:
-    events.append(getEventDetailsFromMisp(event_item))
+    events.append(getEventDetailsFromMisp(mispObject, event_item))
 
   for event in events:
     for attribute in attributes:
       if event['event_id'] == attribute['event_id']:
-        if u.tag:
-          if u.tag in event['event_tag']:
+        if tag:
+          if tag in event['event_tag']:
             finalJsonArray.append({**event, **attribute})
           else:
             pass
         else:
           finalJsonArray.append({**event, **attribute})
+  return finalJsonArray
+
+
+
+
+
 
