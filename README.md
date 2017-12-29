@@ -21,10 +21,10 @@ optional arguments:
                         Parameter to search (ip, email, domain, etc.)
   -d DATERANGE, --daterange DATERANGE
                         Only get the last X days updated attributes (5, 10, etc.)
-  -s, --siem            Get only events with tag siem - Default: None
+  -t, --tag             Get only events with specific tag = Example: send:siem
 ```
 
 ### Installation
-* Create a repository named "private"
-* Modify the file "keys.py" with your Misp instance details
-* Move this file to your private directory
+* Rename repository named "priv" to "private"
+* Modify the file "mispKeys.py" within the private repository with your Misp instance details
+* Modify the file "splunkKeys.py" within the private repository with your Splunk instance details
