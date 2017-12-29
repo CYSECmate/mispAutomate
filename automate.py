@@ -31,6 +31,8 @@ class userChoices:
       logger.error("Category should be: email, domain or ip")
       sys.exit(0)
 
+
+
 if __name__ == '__main__':
   logger.info("------- Script started ...") 
   parser = argparse.ArgumentParser(description='Get all the events matching a category and date range')
@@ -44,76 +46,51 @@ if __name__ == '__main__':
 
   u = userChoices(args.category, args.daterange, args.tag)
 
-  if u.category == 'domain':
-    logger.info("Category - {}".format(args.category))
-    for category in u.categories:
-      kwargs = {'type_attribute': category}
-      logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, args.daterange, args.tag))
-      response = searchEvent(misp, kwargs)
-      if response['response']:
-        finalJsonArray, numberOfAttributes = getJsonArray(misp, response, u.dateRange, u.tag)
-        logger.info("{} attributes found for the above parameters".format(numberOfAttributes))
-      else:
-        logger.info("0 attribute(s) found for the above parameters")
-    for item in finalJsonArray:
-      for key, value in item.copy().items():
-        if key == "value":
+  logger.info("Category - {}".format(args.category))
+  for category in u.categories:
+    kwargs = {'type_attribute': category}
+    logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, args.daterange, args.tag))
+    response = searchEvent(misp, kwargs)
+    if response['response']:
+      finalJsonArray, numberOfAttributes = getJsonArray(misp, response, u.dateRange, u.tag)
+      logger.info("{} attributes found for the above parameters".format(numberOfAttributes))
+    else:
+      logger.info("0 attribute(s) found for the above parameters")
+  
+  # Reformate the finalJsonArray depending on the category
+  for item in finalJsonArray:
+    for key, value in item.copy().items():
+      if key == "value":
+        if u.category == "domain":
           item['domain'] = item['value']
           del(item['value'])
-    logger.info("Delete misp_domain_intel lookup within Splunk")
-    response = deleteSplunkContent("misp_domain_intel", splunkUser, splunkPass)
-    logger.info("Lookup deleted")
-    logger.info("Send new data to Splunk")
-    response = pushSplunkContent("misp_domain_intel", splunkUser, splunkPass, finalJsonArray)
-    logger.info("Data sent to Splunk")
-
-  if u.category == 'ip':
-    logger.info("Category - {}".format(args.category))
-    for category in u.categories:
-      kwargs = {'type_attribute': category}
-      logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, args.daterange, args.tag))
-      response = searchEvent(misp, kwargs)
-      if response['response']:
-        finalJsonArray, numberOfAttributes = getJsonArray(misp, response, u.dateRange, u.tag)
-        logger.info("{} attributes found for the above parameters".format(numberOfAttributes))
-      else:
-        logger.info("0 attribute(s) found for the above parameters")
-    for item in finalJsonArray:
-      for key, value in item.copy().items():
-        if key == "value":
+        elif u.category == "ip":
           item['ip'] = item['value']
           del(item['value'])
-    logger.info("Delete misp_ip_intel lookup within Splunk")
-    response = deleteSplunkContent("misp_ip_intel", splunkUser, splunkPass)
-    logger.info("Lookup deleted")
-    logger.info("Send new data to Splunk")
-    response = pushSplunkContent("misp_ip_intel", splunkUser, splunkPass, finalJsonArray)
-    logger.info("Data sent to Splunk")
-
-  if u.category == 'email':
-    logger.info("Category - {}".format(args.category))
-    for category in u.categories:
-      kwargs = {'type_attribute': category}
-      logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, args.daterange, args.tag))
-      response = searchEvent(misp, kwargs)
-      if response['response']:
-        finalJsonArray, numberOfAttributes = getJsonArray(misp, response, u.dateRange, u.tag)
-        logger.info("{} attributes found for the above parameters".format(numberOfAttributes))
-      else:
-        logger.info("0 attribute(s) found for the above parameters")
-    for item in finalJsonArray:
-      for key, value in item.copy().items():
-        if key == "value":
+        elif u.category == "email":
           item['src_user'] = item['value']
           item['subject'] = ""
           del(item['value'])
+
+  # Delete and send data to Splunk depending on the category
+  if u.category == "domain":
+    logger.info("Delete misp_domain_intel lookup within Splunk")
+    response = deleteSplunkContent("misp_domain_intel", splunkUser, splunkPass)
+    logger.info("Send new data to Splunk")
+    response = pushSplunkContent("misp_domain_intel", splunkUser, splunkPass, finalJsonArray)
+  elif u.category == "ip":
+    logger.info("Delete misp_ip_intel lookup within Splunk")
+    response = deleteSplunkContent("misp_ip_intel", splunkUser, splunkPass)
+    logger.info("Send new data to Splunk")
+    response = pushSplunkContent("misp_ip_intel", splunkUser, splunkPass, finalJsonArray)
+  elif u.category == "email":
     logger.info("Delete misp_email_intel lookup within Splunk")
     response = deleteSplunkContent("misp_email_intel", splunkUser, splunkPass)
-    logger.info("Lookup deleted")
     logger.info("Send new data to Splunk")
     response = pushSplunkContent("misp_email_intel", splunkUser, splunkPass, finalJsonArray)
-    logger.info("Data sent to Splunk")
-    logger.info("------- Script finished")
+
+
+  logger.info("------- Script finished")
 
       
 
