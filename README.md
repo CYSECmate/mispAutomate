@@ -26,5 +26,5 @@ optional arguments:
 
 ### Installation
 * Rename repository named "priv" to "private"
-* Modify the file "mispKeys.py" within the private repository with your Misp instance details
-* Modify the file "splunkKeys.py" within the private repository with your Splunk instance details
+* Modify the file "mispKeys.py" from the private repository with your Misp instance details
+* Modify the file "splunkKeys.py" from the private repository with your Splunk instance details
