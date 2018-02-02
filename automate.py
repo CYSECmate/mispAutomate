@@ -5,7 +5,6 @@ from modules.splunkImport import *
 from modules.mispExport import *
 from lib.logger import *
 import argparse
-import logging
 import sys
 
 ''' Variables '''
@@ -76,36 +75,20 @@ if __name__ == '__main__':
   if u.category == "domain":
     logger.info("Delete misp_domain_intel lookup within Splunk")
     response = deleteSplunkContent("misp_domain_intel", splunkUser, splunkPass)
-    if response != "200" or response != "404":
-      logger.info("Error - Response code "+str(response))
-      logger.info("------- Script finished with error")
-      sys.exit(0)
     logger.info("Send new data to Splunk")
     response = pushSplunkContent("misp_domain_intel", splunkUser, splunkPass, finalJsonArray)
   elif u.category == "ip":
     logger.info("Delete misp_ip_intel lookup within Splunk")
     response = deleteSplunkContent("misp_ip_intel", splunkUser, splunkPass)
-    if response != "200" or response != "404":
-      logger.info("Error - Response code "+str(response))
-      logger.info("------- Script finished with error")
-      sys.exit(0)
     logger.info("Send new data to Splunk")
     response = pushSplunkContent("misp_ip_intel", splunkUser, splunkPass, finalJsonArray)
   elif u.category == "email":
     logger.info("Delete misp_email_intel lookup within Splunk")
     response = deleteSplunkContent("misp_email_intel", splunkUser, splunkPass)
-    if response != "200" or response != "404":
-      logger.info("Error - Response code "+str(response))
-      logger.info("------- Script finished with error")
-      sys.exit(0)
     logger.info("Send new data to Splunk")
     response = pushSplunkContent("misp_email_intel", splunkUser, splunkPass, finalJsonArray)
 
-  if response == "200":
-    logger.info("------- Script successfully finished")
-  else:
-    logger.info("Error - Response code "+str(response))
-    logger.info("------- Script finished with error")
+  logger.info("------- Script successfully finished")
 
       
 
