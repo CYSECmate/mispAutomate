@@ -91,15 +91,15 @@ def getJsonArray(mispObject, response, dateRange, tag):
   for event in events:
     for attribute in attributes:
       if event['event_id'] == attribute['event_id']:
-        if tag:
-          if tag in event['event_tag']:
-            count += 1
-            logger.debug("Attribute found, Event ID: {}, Value: {}".format(attribute['event_id'], attribute['value']))
-            finalJsonArray.append({**event, **attribute})
-          else:
-            pass
-        else:
-          finalJsonArray.append({**event, **attribute})
+        #if tag:
+          #if tag in event['event_tag']:
+        count += 1
+        logger.debug("Attribute found, Event ID: {}, Value: {}".format(attribute['event_id'], attribute['value']))
+        finalJsonArray.append({**event, **attribute})
+          #else:
+            #pass
+        #else:
+          #finalJsonArray.append({**event, **attribute})
   return finalJsonArray, count
 
 

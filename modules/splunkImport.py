@@ -15,7 +15,8 @@ def getSplunkContent(typeIntel, splunkUser, splunkPass):
 ''' Function which delete the content of a splunk lookup '''
 def deleteSplunkContent(typeIntel, splunkUser, splunkPass):
   response = requests.delete(splunkUrl+typeIntel, auth=(splunkUser, splunkPass), verify=False)
-  if str(response.status_code) != ("200" or "404"):
+  if str(response.status_code) != ("200"):
+    if str(response.status_code) != ("404"):
       logger.info("Error - Response code "+str(response.status_code)+" - Cannot delete Splunk "+typeIntel)
       logger.info("------- Script finished with error")
       sys.exit(0)

@@ -45,10 +45,10 @@ if __name__ == '__main__':
 
   u = userChoices(args.category, args.daterange, args.tag)
 
-  logger.info("Category - {}".format(args.category))
+  logger.info("Category - {}".format(u.category))
   for category in u.categories:
-    kwargs = {'type_attribute': category}
-    logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, args.daterange, args.tag))
+    kwargs = {'type_attribute': category, 'tags': u.tag}
+    logger.info("Search Misp events with (subcategory) {}, (date range) {} days, (tag) {}".format(category, u.dateRange, u.tag))
     response = searchEvent(misp, kwargs)
     if response['response']:
       finalJsonArray, numberOfAttributes = getJsonArray(misp, response, u.dateRange, u.tag)
