@@ -1,4 +1,4 @@
-# mispAttributeTransform
+# mispAutomate
 
 This script use pymisp module to export attributes from Misp based on specific criteria. Its main reason is to export attribute and forward them for monitoring such as Elastic Search, Splunk or other SIEM.
 
