@@ -33,13 +33,13 @@ class userChoices:
 
 
 if __name__ == '__main__':
-  logger.info("------- Script started ...") 
   parser = argparse.ArgumentParser(description='Get all the events matching a category and date range')
   parser.add_argument("-c", "--category", required=True, help="Parameter to search (ip, email, domain)")
   parser.add_argument("-d", "--daterange", required=True, type=int, help="Only get the last X days updated attributes (5, 10, etc.)")
   parser.add_argument("-t", "--tag", required=False, help="Get only events with specific tag - example: send:siem")
   
   args = parser.parse_args()
+  logger.info("------- Script started ...") 
 
   misp = init(mispUrl, mispKey, mispVerifycert)
 
